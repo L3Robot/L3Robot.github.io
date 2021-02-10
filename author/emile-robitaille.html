@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+        <meta charset="utf-8" />
+        <meta name="generator" content="Pelican" />
+        <title>L'Échappée - Émile Robitaille</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">L'Échappée</a></h1>
+                <nav><ul>
+                    <li><a href="/category/hockey.html">hockey</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/sur-lutilisation-de-la-moyenne-de-buts.html">Sur l'utilisation de la moyenne de buts.</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2021-02-08T21:29:00-05:00">
+                Published: Mon 08 February 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/emile-robitaille.html">Émile Robitaille</a>
+        </address>
+<p>In <a href="/category/hockey.html">hockey</a>.</p>
+
+</footer><!-- /.post-info --><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+.no_after::after {
+    content: none !important;
+}
+</style>
+
+<p>Quand je vois ce genre de tweet, ça me fait sursauter.</p>
+<p><a class="no_after" style="display: block;" href="https://twitter.com/mirtle/status/1358236697876697089"><img class="center" src="/images/naive_avg_goals/james_mirtle_claim.png" alt="James Mirtle Claim"></a></p>
+<p>Bon, ne soyons pas de mauvaise fois, James Mirtle a le droit de s'emporter après une excellente performance de son joueur vedette, mais est-ce que cette prédiction se tient?</p>
+<h1>Prédiction naïve: par la moyenne</h1>
+<p>Commençons tout d'abord par expliquer comment certains commentateurs sportifs arrivent à faire cette projection. Celle-ci se base sur la moyenne de buts d'un joueur depuis le début de la saison \(\bar{g}\). On estime ensuite que le joueur continue avec cette même cadence jusqu'à la fin de la saison. Pour obtenir la prédiction finale, on multiplie la moyenne de buts par le nombre de matchs restant à la saison \(r\) et on ajoute le nombre de buts comptés jusqu'à maintenant \(g\):</p>
+<p>$$p_{naive}=g + \bar g \cdot r $$</p>
+<p>Le 6 février, Auston Matthews avait compté \(g=10\) buts en 11 matchs, ce qui est impressionnant et ce qui équivaut à une moyenne de \(\bar g=0.909\) buts par matchs. À cette date, il restait \(r=45\) matchs à jouer dans la saison, ce qui donne une prédiction de 51.905 buts. Puisqu'il est, dieu soit loué, impossible de compter des fractions de buts, on arrondi à la baisse le nombre de buts et on arrive à 51, exactement la prédiction de Mirtle.</p>
+<h1>Problème avec la moyenne</h1>
+<p>Le problème avec la moyenne, c'est qu'elle est fortement influencée par les débuts de saison exceptionnelle du joueur. Regardons en premier la distribution du nombre de buts par match de Auston Matthews pour ses 4 dernières saisons:</p>
+<p><img class="center" style="width: 100%" src="/images/naive_avg_goals/auston_matthews_past_season_goal_dist.png" alt="Auston Matthews past goals distribution"></p>
+<p>S'il est vrai qu'on y voit une certaine amélioration dans sa production, son nombre de matchs à vide diminue avec le temps, sa production reste relativement stable. Maintenant, si on regarde la distribution du nombre de buts pour les 11 premiers matchs lors de la saison 2020-2021:</p>
+<p><img class="center" style="width: 80%" src="/images/naive_avg_goals/auston_matthews_11games_goal_dist.png" alt="Auston Matthews 11 games goals distribution"></p>
+<p>On voit tout de suite une surreprésentation de matchs avec 1 but comparativement aux années passées. Si Matthews conservait cette distribution tout au long de la saison, cela représenterait une amélioration extraordinaire comparée aux années passées. D'ailleurs, la dernière fois que Matthews avait autant de buts projetés en début de saison, c'était à la saison 2018-2019, voilà ce qui est arrivé:</p>
+<p><img class="center" style="width: 90%" src="/images/naive_avg_goals/auston_matthews_naive_prediction.png" alt="Auston Matthews 11 games goals distribution"></p>
+<p>Non seulement la prédiction par la moyenne surestime le nombre de buts total de Matthews tout au long de la saison, mais il faut attendre mi-janvier pour que la moyenne se stabilise.</p>
+<p>Bref, il faut toujours avoir des réserves quand on utilise la moyenne pour faire une projection. En effet, il faut beaucoup de données pour que celle-ci soit significative. Mais est-ce qu'il est possible de faire mieux?</p>
+<h1>Prédiction bayésienne</h1>
+<p>Il serait intéressant et plus réaliste d'incorporer l'information disponible a priori sur Matthews pour calculer une projection de buts pour cette année. Il est tout aussi important de mettre à jour le modèle avec les nouvelles informations disponibles. C'est ce qui permet de faire la prédiction bayésienne. Le <a href="https://www.wikiwand.com/fr/Th%C3%A9or%C3%A8me_de_Bayes">théorème de Bayes</a> permet de raffiner l'information disponible a priori avec les nouvelles informations:</p>
+<p>$$P(A|B) \propto P(B|A)P(A)$$</p>
+<p>Dans le cas étudié ici, il est considéré que \(P(B|A)\) représente la probabilité que Matthews compte \(B\) buts dans un match sachant que cette distribution suit l'histogramme A (plus exactement, la <a href="https://www.wikiwand.com/en/Categorical_distribution">loi multinoulli</a> A) et \(P(A)\) représente la distribution a priori sur l'histogramme A modélisé par une <a href="https://www.wikiwand.com/fr/Loi_de_Dirichlet">loi de Dirichlet</a>.</p>
+<p>La loi de Dirichlet est paramétrisé par autant de \(\alpha\) qu'il y a de catégories dans la loi multinoulli correspondante. Il est posé arbitrairement que le maximum théorique soit de 5 buts par match, ce qui fait 6 catégories et 6 \(\alpha\) avec la possibilité de ne compter aucun but. La loi de Dirichlet \(\mathcal{D}\) a la propriété intéressante de représenter l'incertitude la distribution des catégories lorsque les \(\alpha\) représentent les comptes de chaque catégorie. De plus, la probabilité a posteriori \(P(A|B)\) suit tout simplement:</p>
+<p>$$P(A|B)\sim\mathcal{D}(\alpha_1+\beta_1, ..., \alpha_n+\beta_n)$$</p>
+<p>Où \(\beta\) représente les nouveaux comptes des nouvelles observations. Il est donc trivial d'obtenir la nouvelle distribution sur les catégories.</p>
+<h2>Résultats</h2>
+<p>Si l'on reproduit la dernière figure, mais cette fois-ci avec la moyenne de la loi de Dirichlet mis à jour, on obtient le résultat suivant:</p>
+<p><img class="center" style="width: 90%" src="/images/naive_avg_goals/auston_matthews_bayesian_prediction.png" alt="Auston Matthews 11 games goals distribution bayesian"></p>
+<p>Même si le modèle surestime toujours le nombre de buts, la prédiction est beaucoup plus conservatrice et l'erreur est beaucoup plus petite: 7 buts comparativement à 24 avec la prédiction naïve. La prédiction est également beaucoup plus stable dans le temps puisqu'elle se base sur un a priori fort basé sur la dernière saison.</p>
+<h1>Prédiction bayésienne avec Monte-Carlo</h1>
+<p>Finalement, puisque le modèle produit une distribution sur les histogrammes, il est possible d'obtenir une valeur de l'incertitude du modèle. À la place d'assumer que la moyenne de la Dirichlet représente la moyenne de but de Matthews jusqu'à la fin de la saison, il est possible de simuler plusieurs trajectoires possibles. Pour chaque trajectoire, un loi multinoulli A est d'abord tiré avec la Dirichlet et la saison est complétée en pigeant un nombre de buts par match B avec \(P(B|A)\) pour chaque match restant. La procédure est répétée 10000 fois. La figure suivante montre toutes les trajectoires et la moyenne de celle-ci en rouge.</p>
+<p><img class="center" style="width: 90%" src="/images/naive_avg_goals/auston_matthews_monte_carlo_simulation.png" alt="Auston Matthews monte carlo simulations"></p>
+<p>Il est possible d'y voir que l'incertitude augmente avec le temps et que la moyenne se situe autour de 40 buts. Finalement, on peut calculer la proportion de trajectoires qui se situe dans chaque intervalle de 10 buts pour fournir une probabilité sur la prédiction avec le modèle actuel:</p>
+<p><img class="center" style="width: 90%" src="/images/naive_avg_goals/auston_matthews_monte_carlo_probs.png" alt="Auston Matthews monte carlo probs"></p>
+<p>La figure montre que Matthews a plus de 50% de chance de compter entre \([40, 50[\) buts, mais seulement 10% de chance de dépasser 50 buts.</p>
+<h1>Conclusion</h1>
+<p>Il est tentant d'utiliser la moyenne de buts d'un joueur pour projeter son nombre de buts total dans la saison, mais il faut faire preuve de prudence. Premièrement, ce modèle naïf ne prend pas en compte l'information déjà disponible sur le joueur. Deuxièmement, la faible quantité de données produit un estimateur avec une trop forte incertitude, incertitude qui est souvent absente lors de la publication de la projection. L'utilisation d'un modèle bayésien couplé de simulations Monte-Carlo offre une solution à ces deux problèmes et produit ainsi un meilleur estimateur.</p>
+<p>Matthews est certainement un bon joueur, il va sûrement dépasser les 40 buts cette saison, ce qui est un exploit, mais 50 buts, c'est très peu probable.</p>                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
